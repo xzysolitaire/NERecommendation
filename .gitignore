@@ -1,4 +1,6 @@
 /bin
 /.settings
-/data
+/data/stories
+/data/testdata
 *.txt
+

@@ -37,7 +37,7 @@ public class Indexer {
   
   //Name entity dictionary
   private Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
   private static Map<Integer, Map<Integer, Integer>> NECooccur =
@@ -339,7 +339,6 @@ public class Indexer {
     }
   }
   
-  
   /*
    * Get the intersection of a list and a set
    */
@@ -367,7 +366,7 @@ public class Indexer {
   }
   
   public void listInformation() {
-//    System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
+    System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
 //    for (String term: NECooccur.get("andrew wiggins").keySet()) {
 //      System.out.println(term);
 //      System.out.println(NECooccur.get("andrew wiggins").get(term));
@@ -382,12 +381,55 @@ public class Indexer {
       Indexer indexer = new Indexer(20);
       indexer.buildIndex();
       indexer.listInformation();
-      List<Integer> results = indexer.entityRecommend("indiana pacers");
+      List<Integer> results;
+      
+      System.out.println("TEST CASE: Indiana pacers");
+      results = indexer.entityRecommend("indiana pacers");
       System.out.println(results.size());
       for (Integer s: results) {
-        System.out.println(s);
+        System.out.println(NEIndex.get(s));
         //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
       }
+      
+      System.out.println("TEST CASE: Kobe Bryant");
+      results = indexer.entityRecommend("kobe bryant");
+      System.out.println(results.size());
+      for (Integer s: results) {
+        System.out.println(NEIndex.get(s));
+        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
+      }      
+      
+      System.out.println("TEST CASE: Kobe");
+      results = indexer.entityRecommend("kobe");
+      System.out.println(results.size());
+      for (Integer s: results) {
+        System.out.println(NEIndex.get(s));
+        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
+      }
+      
+      System.out.println("TEST CASE: Atlanta Hawks");
+      results = indexer.entityRecommend("atlanta hawks");
+      System.out.println(results.size());
+      for (Integer s: results) {
+        System.out.println(NEIndex.get(s));
+        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
+      }
+      
+      System.out.println("TEST CASE: James");
+      results = indexer.entityRecommend("james");
+      System.out.println(results.size());
+      for (Integer s: results) {
+        System.out.println(NEIndex.get(s));
+        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
+      }      
+      
+      System.out.println("TEST CASE: LeBron");
+      results = indexer.entityRecommend("LeBron");
+      System.out.println(results.size());
+      for (Integer s: results) {
+        System.out.println(NEIndex.get(s));
+        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
+      }      
     } catch (ClassCastException | ClassNotFoundException | IOException e) {
       e.printStackTrace();
     }

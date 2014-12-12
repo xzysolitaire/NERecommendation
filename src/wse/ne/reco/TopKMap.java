@@ -21,6 +21,9 @@ public class TopKMap {
     }
   }
   
+  /*
+   * Provide the top k results of the map
+   */
   public static List<Integer> sortMap(int k, Map<Integer, Integer> map) {
     List<Integer> r = new ArrayList<Integer>();
     PriorityQueue<keypair> pq = new PriorityQueue<keypair>(k, new Comparator<keypair>(){
