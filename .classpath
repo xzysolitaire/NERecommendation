@@ -2,67 +2,55 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/stanford-ner-2014-06-16/stanford-ner.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/stanford-ner-2014-06-16/stanford-ner-3.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/stanford-ner-2014-06-16/stanford-ner-3.4-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/stanford-ner-2014-06-16/stanford-ner-3.4-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/google-api-services-freebase-v1-rev62-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/google-api-services-freebase-v1-rev62-1.19.0-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/google-api-services-freebase-v1-rev62-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-android-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-appengine-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-gson-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-jackson2-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-java6-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-api-client-servlet-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-android-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-appengine-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-gson-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-jackson2-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-http-client-jdo-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-oauth-client-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-oauth-client-appengine-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-oauth-client-java6-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-oauth-client-jetty-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/google-oauth-client-servlet-1.19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/gson-2.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/httpclient-4.0.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/httpcore-4.0.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/jackson-core-2.1.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/jdo2-api-2.3-eb.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/jetty-6.1.26.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/jetty-util-6.1.26.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/jsr305-1.3.9.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs/transaction-api-1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/commons-logging-1.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-android-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-appengine-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-gson-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-jackson2-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-java6-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-api-client-servlet-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-android-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-appengine-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-gson-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-jackson2-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-http-client-jdo-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-oauth-client-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-oauth-client-appengine-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-oauth-client-java6-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-oauth-client-jetty-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/google-oauth-client-servlet-1.19.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/gson-2.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/httpclient-4.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/httpcore-4.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/jackson-core-2.1.3-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/jdo2-api-2.3-eb-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/jetty-6.1.26-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/jetty-util-6.1.26-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/acer/workspace/freebase/libs-sources/transaction-api-1.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/java-json.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner-3.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner-3.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-android-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-android-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-appengine-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-appengine-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-gson-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-gson-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-jackson2-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-jackson2-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-java6-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-java6-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-protobuf-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-protobuf-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-servlet-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-servlet-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-client-xml-1.18.0-rc.jar" sourcepath="libs-sources/google-api-client-xml-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-1.18.0-rc.jar" sourcepath="libs-sources/google-oauth-client-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-appengine-1.18.0-rc.jar" sourcepath="libs-sources/google-oauth-client-appengine-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-java6-1.18.0-rc.jar" sourcepath="libs-sources/google-oauth-client-java6-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-jetty-1.18.0-rc.jar" sourcepath="libs-sources/google-oauth-client-jetty-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-servlet-1.18.0-rc.jar" sourcepath="libs-sources/google-oauth-client-servlet-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-android-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-android-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-appengine-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-appengine-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-protobuf-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-protobuf-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-gson-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-gson-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-jackson-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-jackson-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-jackson2-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-jackson2-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-jdo-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-jdo-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/google-http-client-xml-1.18.0-rc.jar" sourcepath="libs-sources/google-http-client-xml-1.18.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.1.1.jar" sourcepath="libs-sources/commons-logging-1.1.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/gson-2.1.jar" sourcepath="libs-sources/gson-2.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/httpclient-4.0.1.jar" sourcepath="libs-sources/httpclient-4.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/httpcore-4.0.1.jar" sourcepath="libs-sources/httpcore-4.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jackson-core-asl-1.9.11.jar" sourcepath="libs-sources/jackson-core-asl-1.9.11-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jackson-core-2.1.3.jar" sourcepath="libs-sources/jackson-core-2.1.3-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jdo2-api-2.3-eb.jar" sourcepath="libs-sources/jdo2-api-2.3-eb-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jsr305-1.3.9.jar"/>
+	<classpathentry kind="lib" path="libs/protobuf-java-2.4.1.jar" sourcepath="libs-sources/protobuf-java-2.4.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/transaction-api-1.1.jar" sourcepath="libs-sources/transaction-api-1.1-sources.jar"/>
+	<classpathentry kind="lib" path="libs/xpp3-1.1.4c.jar" sourcepath="libs-sources/xpp3-1.1.4c-sources.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-6.1.26.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-util-6.1.26.jar"/>
+	<classpathentry kind="lib" path="libs/google-oauth-client-java7-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/json-path-0.9.0.jar"/>
+	<classpathentry kind="lib" path="libs/jul-to-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="libs/osgi-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="libs/log4j-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/json-smart-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
