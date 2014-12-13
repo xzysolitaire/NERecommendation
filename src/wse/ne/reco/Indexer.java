@@ -26,7 +26,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 
 public class Indexer {
   private static final String WORKDIR = ""; 
-  private static final String sourceDir = "data/testdata";
+  private static final String sourceDir = "data/stories";
   private int numResults;
   private boolean isChanged;  //record whether the current index has been modified
   
@@ -36,7 +36,7 @@ public class Indexer {
   private AbstractSequenceClassifier<CoreLabel> classifier;
   
   //Name entity dictionary
-  private Map<String, Integer> NEDict = new HashMap<String, Integer>();
+  private static Map<String, Integer> NEDict = new HashMap<String, Integer>();
   private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
@@ -95,6 +95,8 @@ public class Indexer {
       BuildOneDoc(files.get(i).getPath());
     }
     
+    crossResolution(); //shallow cross-document resolution and merge entries
+    
     isChanged = false;
   }
   
@@ -144,6 +146,24 @@ public class Indexer {
       entityIndexes.add(NEDict.get(term.toLowerCase()));
     }
     
+    //add reversed index in the nameLink
+    for (String term: resolvedEntities) {
+      if (term.split(" ").length > 1) {
+        String[] temp = term.split(" ");
+        for (int i = 0; i < temp.length; i++) {
+          if (nameLink.containsKey(temp[i])) {
+            if (!nameLink.get(temp[i].toLowerCase()).contains(NEDict.get(term))) {
+              nameLink.get(temp[i].toLowerCase()).add(NEDict.get(term));
+            }
+          } else {
+            Set<Integer> s = new HashSet<Integer>();
+            s.add(NEDict.get(term));
+            nameLink.put(temp[i].toLowerCase(), s);
+          }
+        }
+      } 
+    }
+    
     if (resolvedEntities.size() > 1) {
       processCooccurrence(entityIndexes);
     }
@@ -185,41 +205,47 @@ public class Indexer {
    */
   private Set<String> entityLinkingResolution(Set<String> entities) {
     Set<String> r = new HashSet<String>();
-    
-    //put name entities which has a name longer than 2
-    for (String term: entities) {
-      if (term.split(" ").length > 1) {
-        if (!r.contains(term)) {
-          r.add(term);
-        }
-        
-        String[] temp = term.split(" ");
-        for (int i = 0; i < temp.length; i++) {
-          if (nameLink.containsKey(temp[i])) {
-            if (!nameLink.get(temp[i].toLowerCase()).contains(NEDict.get(term))) {
-              nameLink.get(temp[i].toLowerCase()).add(NEDict.get(term));
-            }
-          } else {
-            Set<Integer> s = new HashSet<Integer>();
-            s.add(NEDict.get(term));
-            nameLink.put(temp[i].toLowerCase(), s);
-          }
-        }
-      } 
-    }
-    
-    for (String term: entities) {
-      if (term.split(" ").length == 1) {
-        if (!nameLink.containsKey(term)) {
-          r.add(term);
-          Set<Integer> temp = new HashSet<Integer>();
-          temp.add(NEDict.get(term));
-          nameLink.put(term, temp); //add a link to itself
+    Set<String> temp = new HashSet<String>();
+    for (String n1: entities) {
+      for (String n2: entities) {
+        if (!n1.equals(n2) && n1.contains(n2)) {
+          temp.add(n2);
         }
       }
     }
     
+    for (String e: entities) {
+      if (!temp.contains(e)) {
+        r.add(e);
+      }
+    }
+    
     return r;
+  }
+  
+  /*
+   * Shallow cross-document resolution
+   * if the term only links to one name entity in the corpus,
+   *   then merge these two maps
+   */
+  void crossResolution() {
+    List<Integer> toRemove = new ArrayList<Integer>();
+    for (Integer ne: NECooccur.keySet()) {
+      if (nameLink.containsKey(NEIndex.get(ne)) &&
+          nameLink.get(NEIndex.get(ne)).size() == 1) {
+        Integer linkTo = 0;
+        for (Integer temp: nameLink.get(NEIndex.get(ne))) {
+          linkTo = temp;
+        }        
+        System.out.println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
+        mergeMap(linkTo, ne); //merge NE(ne) to NE(linkTo)
+        toRemove.add(ne);
+      }
+    }
+    
+    for (Integer index: toRemove) {
+      NECooccur.remove(index);
+    }
   }
   
   /*
@@ -319,6 +345,20 @@ public class Indexer {
   }
   
   /*
+   * Merge two entries in the NECooccur index
+   */
+  private void mergeMap(Integer linkTo, Integer ne) {
+    for (Integer index: NECooccur.get(ne).keySet()) {
+      if (NECooccur.get(linkTo).containsKey(index)) {
+        int ov = NECooccur.get(linkTo).get(index);
+        NECooccur.get(linkTo).put(index, ov + NECooccur.get(ne).get(index));
+      } else {
+        NECooccur.get(linkTo).put(index, NECooccur.get(ne).get(index));
+      }
+    }
+  }
+  
+  /*
    * Show results
    */
   public void showResults(String query, List<Integer> results) {
@@ -376,60 +416,27 @@ public class Indexer {
 //    }
   }
   
+  private static void showEntry(String name) {
+    System.out.println("TEST CASE: " + name);
+    if (NEDict.containsKey(name.toLowerCase())) {
+      int index = NEDict.get(name.toLowerCase());
+      for (Integer i: NECooccur.get(index).keySet()) {
+        if (NECooccur.get(index).get(i) > 3) {
+          System.out.println(NEIndex.get(i) + "\t" + NECooccur.get(index).get(i));
+        }
+      }
+    } else {
+      System.out.println("No such name entity.");
+    }
+  }
+  
   public static void main(String[] args) {
     try {
       Indexer indexer = new Indexer(20);
       indexer.buildIndex();
       indexer.listInformation();
       List<Integer> results;
-      
-      System.out.println("TEST CASE: Indiana pacers");
-      results = indexer.entityRecommend("indiana pacers");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }
-      
-      System.out.println("TEST CASE: Kobe Bryant");
-      results = indexer.entityRecommend("kobe bryant");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }      
-      
-      System.out.println("TEST CASE: Kobe");
-      results = indexer.entityRecommend("kobe");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }
-      
-      System.out.println("TEST CASE: Atlanta Hawks");
-      results = indexer.entityRecommend("atlanta hawks");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }
-      
-      System.out.println("TEST CASE: James");
-      results = indexer.entityRecommend("james");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }      
-      
-      System.out.println("TEST CASE: LeBron");
-      results = indexer.entityRecommend("LeBron");
-      System.out.println(results.size());
-      for (Integer s: results) {
-        System.out.println(NEIndex.get(s));
-        //System.out.println(NECooccur.get("Andrew Wiggins").get(s));
-      }      
+
     } catch (ClassCastException | ClassNotFoundException | IOException e) {
       e.printStackTrace();
     }

@@ -20,10 +20,10 @@ public class SearchExample {
       HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
       JSONParser parser = new JSONParser();
       GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
-      url.put("query", "Cee Lo Green");
-      url.put("filter", "(all type:/music/artist created:\"The Lady Killer\")");
+      url.put("query", "sixers");
+//      url.put("filter", "(all type:/music/artist created:\"The Lady Killer\")");
       url.put("limit", "10");
-      url.put("indent", "true");
+//      url.put("indent", "true");
       //url.put("key", properties.get("API_KEY"));
       HttpRequest request = requestFactory.buildGetRequest(url);
       HttpResponse httpResponse = request.execute();

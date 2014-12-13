@@ -15,6 +15,29 @@ public class NEExpansion {
   private Map<Integer, Map<Integer, Float>> NormNECooccur =
       new HashMap<Integer, Map<Integer, Float>>();
   
+  private class NEPair {
+    public String ne1, ne2;
+    
+    NEPair(String ne1, String ne2) {
+      this.ne1 = ne1;
+      this.ne2 = ne2;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof NEPair)) {
+        return false;
+      }
+      if (obj == this) {
+        return true;
+      }
+
+      NEPair pair = (NEPair) obj;
+      return (pair.ne1.equals(this.ne1) && pair.ne2.equals(this.ne2)) ||
+             (pair.ne1.equals(this.ne2) && pair.ne2.equals(this.ne1));
+    }
+  }
+  
   private void normalize() {
     for (Integer key: NECooccur.keySet()) {
       int sum = 0;
