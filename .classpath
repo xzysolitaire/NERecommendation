@@ -52,5 +52,6 @@
 	<classpathentry kind="lib" path="libs/log4j-over-slf4j-1.7.7.jar"/>
 	<classpathentry kind="lib" path="libs/slf4j-simple-1.7.7.jar"/>
 	<classpathentry kind="lib" path="lib/json-smart-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/http-20070405.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

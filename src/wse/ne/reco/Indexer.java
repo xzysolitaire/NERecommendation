@@ -2,8 +2,13 @@ package wse.ne.reco;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +29,10 @@ import edu.stanford.nlp.ling.CoreLabel;
  * 3. query expansion --> name entity similarity
  */
 
-public class Indexer {
-  private static final String WORKDIR = ""; 
+public class Indexer implements Serializable {
+
+  private static final long serialVersionUID = -8440505010398627617L;
+  private static final String WORKDIR = "";
   private static final String sourceDir = "data/stories";
   private int numResults;
   private boolean isChanged;  //record whether the current index has been modified
@@ -47,13 +54,38 @@ public class Indexer {
   //used when there is perfect match for the name entity in the query
   private static Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
-  
+
   /*
    * Record the document ids where the name entity appears
    */
-  private Map<String, List<Integer>> NEDoc = 
-      new HashMap<String, List<Integer>>();
-  
+  private Map<String, List<Integer>> NEDoc = new HashMap<String, List<Integer>>();
+
+  public void constructIndex() throws IOException {
+    String indexFile = "index/final.idx";
+    ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(
+        indexFile));
+    writer.writeObject(this);
+    writer.close();
+    System.out.println("Store index to: " + indexFile);
+  }
+
+  public void loadIndex() throws IOException, ClassNotFoundException {
+    String indexFile = "index/final.idx";
+    System.out.println("Load index from: " + indexFile);
+    ObjectInputStream reader = new ObjectInputStream(new FileInputStream(
+        indexFile));
+    Indexer loaded = (Indexer) reader
+        .readObject();
+
+    this.NEDict = loaded.NEDict;
+    this.NEIndex = loaded.NEIndex;
+    this.NECooccur = loaded.NECooccur;
+    this.nameLink = loaded.nameLink;
+    this.NEDoc = loaded.NEDoc;
+    reader.close();
+    isChanged = false;
+  }
+
   /*
    * Return all files under a certain directory
    */
@@ -76,7 +108,7 @@ public class Indexer {
     }
     return files;
   }
-  
+
   /*
    * Build the Co-occurrence index for the source texts
    */
@@ -89,36 +121,16 @@ public class Indexer {
     }
     int files_size = files.size();
     System.out.println("Total Document Size " + files_size);
-    
+
     for (int i = 0; i < files.size(); i++) {
       System.out.println("Processing document:" + files.get(i).getName());
       BuildOneDoc(files.get(i).getPath());
     }
-    
+  
     crossResolution(); //shallow cross-document resolution and merge entries
-    
     isChanged = false;
   }
-  
-  /*
-   * Load the index from the disk 
-   */
-  public void loadIndex() {
-    
-    isChanged = false;
-  }
-  
-  /*
-   * Write the index into disk 
-   */
-  public void writeIndexToFile() {
-    if (isChanged) {
-        
-    }
-    
-    isChanged = false;
-  }
-  
+
   /*
    * Process the given document and update the index
    */
@@ -126,23 +138,23 @@ public class Indexer {
     BufferedReader br = new BufferedReader(new FileReader(fileLoc));
     Set<String> entities = new HashSet<String>();
     String line;
-    
+
     while ((line = br.readLine()) != null) {
       String taggedtext = classifier.classifyWithInlineXML(line);
       entities.addAll(getEntities(taggedtext));
     }
-    
-    //entity linking by in-document resolution 
+
+    // entity linking by in-document resolution
     Set<String> resolvedEntities = entityLinkingResolution(entities);
-    
-    //update the dictionary
+
+    // update the dictionary
     Set<Integer> entityIndexes = new HashSet<Integer>();
-    for (String term: resolvedEntities) {
+    for (String term : resolvedEntities) {
       if (!NEDict.containsKey(term)) {
         NEDict.put(term.toLowerCase(), NEDict.size());
         NEIndex.put(NEDict.size() - 1, term.toLowerCase());
       }
-      
+
       entityIndexes.add(NEDict.get(term.toLowerCase()));
     }
     
@@ -163,19 +175,19 @@ public class Indexer {
         }
       } 
     }
-    
+
     if (resolvedEntities.size() > 1) {
       processCooccurrence(entityIndexes);
     }
   }
-  
+
   /*
-   * Add one file to the whole text 
+   * Add one file to the whole text
    */
   public void addFile(String fileLoc) throws IOException {
     BuildOneDoc(fileLoc);
     isChanged = true;
-    
+
   }
 
   /*
@@ -183,23 +195,23 @@ public class Indexer {
    */
   public Set<String> getEntities(String text) {
     Set<String> entityset = new HashSet<String>();
-    
+
     Pattern p = Pattern.compile("<[A-Z]+>.+?</[A-Z]+>");
     Pattern rmTag = Pattern.compile("</?[A-Z]+>");
     Matcher m = p.matcher(text);
-    
+
     while (m.find()) {
-      Matcher tm = rmTag.matcher(m.group()); //remove tags
+      Matcher tm = rmTag.matcher(m.group()); // remove tags
       String temp = tm.replaceAll("");
-      
+
       if (!entityset.contains(temp.toLowerCase())) {
         entityset.add(temp.toLowerCase());
       }
     }
-    
+
     return entityset;
   }
-  
+
   /*
    * in-document resolution to remove duplicate entities
    */
@@ -219,7 +231,7 @@ public class Indexer {
         r.add(e);
       }
     }
-    
+
     return r;
   }
   
@@ -247,22 +259,23 @@ public class Indexer {
       NECooccur.remove(index);
     }
   }
-  
+
   /*
-   * Given the name entities, process the relation of cooccurrence in the same text
+   * Given the name entities, process the relation of cooccurrence in the same
+   * text
    */
   private void processCooccurrence(Set<Integer> entities) {
     List<Integer> l = new ArrayList<Integer>();
-    for (Integer name: entities) {
+    for (Integer name : entities) {
       l.add(name);
-      
+
       if (!NECooccur.containsKey(name)) {
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         NECooccur.put(name, map);
       }
     }
-    
-    //update the co-occurrence map
+
+    // update the co-occurrence map
     for (int i = 0; i < l.size() - 1; i++) {
       for (int j = i + 1; j < l.size(); j++) {
         int n_i = l.get(i);
@@ -273,7 +286,7 @@ public class Indexer {
         } else {
           NECooccur.get(n_i).put(n_j, 1);
         }
-        
+
         if (NECooccur.get(n_j).containsKey(n_i)) {
           int occur = NECooccur.get(n_j).get(n_i) + 1;
           NECooccur.get(n_j).put(n_i, occur);
@@ -290,60 +303,64 @@ public class Indexer {
   public List<Integer> entityRecommend(String query) {
     List<Integer> recoResults = new ArrayList<Integer>();
     query = query.toLowerCase();
-    
-    //if it is in the NECooccur map, directly return the most co-occurred entities
+
+    // if it is in the NECooccur map, directly return the most co-occurred
+    // entities
     if (NEDict.containsKey(query)) {
       int queryid = NEDict.get(query);
       return TopKMap.sortMap(numResults, NECooccur.get(queryid));
     } else {
-      if (query.split(" ").length > 1) { //provide the intersection of the lists
+      if (query.split(" ").length > 1) { // provide the intersection of the
+                                         // lists
         int j = 0;
         List<Integer> r = new ArrayList<Integer>();
         String[] temp = query.split(" ");
         for (int i = 0; i < temp.length; i++) {
-          if (nameLink.containsKey(temp[i])) { //get the intersection of all the entities name links
-            for (Integer term: nameLink.get(temp[i])) {
+          if (nameLink.containsKey(temp[i])) { // get the intersection of all
+                                               // the entities name links
+            for (Integer term : nameLink.get(temp[i])) {
               r.add(term);
             }
             j = i;
             break;
           }
         }
-        
+
         for (int i = j + 1; i < temp.length; i++) {
           if (nameLink.containsKey(temp[i])) {
             r = getIntersection(r, nameLink.get(temp[i]));
           }
         }
-        
+
         for (int i = 0; i < temp.length; i++) {
           if (NECooccur.containsKey(temp[i])) {
             r.add(NEDict.get(temp[i]));
           }
         }
-        
+
         return r;
       } else {
-        if (nameLink.containsKey(query)) { //if there exists a name link
-          if (nameLink.get(query).size() == 1) { //if there only exists one link
+        if (nameLink.containsKey(query)) { // if there exists a name link
+          if (nameLink.get(query).size() == 1) { // if there only exists one
+                                                 // link
             Integer link = 0;
-            for (Integer term: nameLink.get(query)) {
+            for (Integer term : nameLink.get(query)) {
               link = term;
             }
             return TopKMap.sortMap(numResults, NECooccur.get(link));
           } else {
-            for (Integer ne: nameLink.get(query)) {
+            for (Integer ne : nameLink.get(query)) {
               recoResults.add(ne);
             }
             return recoResults;
           }
-        } else {   //if not, return an empty list
+        } else { // if not, return an empty list
           return recoResults;
         }
       }
     }
   }
-  
+
   /*
    * Merge two entries in the NECooccur index
    */
@@ -362,9 +379,9 @@ public class Indexer {
    * Show results
    */
   public void showResults(String query, List<Integer> results) {
-    if (NEDict.containsKey(query)) { 
+    if (NEDict.containsKey(query)) {
       System.out.println("You might also be insterested in...");
-      for (Integer index: results) {
+      for (Integer index : results) {
         System.out.println(NEIndex.get(index));
       }
     } else {
@@ -372,39 +389,41 @@ public class Indexer {
         System.out.println("There is no such name entity.");
       } else {
         System.out.println("Do you mean by ...?");
-        for (Integer index: results) {
+        for (Integer index : results) {
           System.out.println(NEIndex.get(index));
         }
       }
     }
   }
-  
+
   /*
    * Get the intersection of a list and a set
    */
   private List<Integer> getIntersection(List<Integer> list, Set<Integer> set) {
     List<Integer> r = new ArrayList<Integer>();
-    
-    for (Integer term: list) {
+
+    for (Integer term : list) {
       if (set.contains(term)) {
         r.add(term);
       }
     }
-    
+
     return r;
   }
 
-  public Indexer() throws ClassCastException, ClassNotFoundException, IOException {
+  public Indexer() throws ClassCastException, ClassNotFoundException,
+      IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
-    this.numResults = 20; 
+    this.numResults = 20;
   }
-  
-  public Indexer(int numResults) throws ClassCastException, ClassNotFoundException, IOException {
+
+  public Indexer(int numResults) throws ClassCastException,
+      ClassNotFoundException, IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
-    this.numResults = numResults; 
+    this.numResults = numResults;
     this.isChanged = true;
   }
-  
+
   public void listInformation() {
     System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
 //    for (String term: NECooccur.get("andrew wiggins").keySet()) {
@@ -439,7 +458,7 @@ public class Indexer {
       } 
     }
   }
-  
+
   public static void main(String[] args) {
     try {
       Indexer indexer = new Indexer(20);
