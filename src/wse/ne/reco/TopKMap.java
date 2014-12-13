@@ -56,7 +56,7 @@ public class TopKMap {
     
     while (pq.peek() != null) {
       keypair temp = pq.poll();
-      r.add(temp.key);
+      r.add(0, temp.key);
     }
     
     return r;

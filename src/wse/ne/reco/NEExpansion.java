@@ -1,6 +1,8 @@
 package wse.ne.reco;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -10,10 +12,11 @@ import java.util.Map;
 
 public class NEExpansion {
   
-  private Map<Integer, Map<Integer, Integer>> NECooccur =
-      new HashMap<Integer, Map<Integer, Integer>>();
+  private Map<Integer, Map<Integer, Integer>> NECooccur;
   private Map<Integer, Map<Integer, Float>> NormNECooccur =
       new HashMap<Integer, Map<Integer, Float>>();
+  private Map<Integer, String> NEIndex;
+  private Map<String, Integer> NEDict;
   
   private class NEPair {
     public String ne1, ne2;
@@ -54,6 +57,29 @@ public class NEExpansion {
     }
   }
   
+  private Map<Integer, Float> getNormalizedMap(Map<Integer, Integer> map) {
+    List<Integer> toRemove = new ArrayList<Integer>();
+    Map<Integer, Float> r = new HashMap<Integer, Float>();
+    int sum = 0;
+    for (Integer i: map.keySet()) {
+      if (map.get(i) < 10) {
+        toRemove.add(i);
+      } else {
+        sum += map.get(i);
+      }
+    }
+    
+    for (Integer i: toRemove) {
+      map.remove(i);
+    }
+    
+    for (Integer i: map.keySet()) {
+      r.put(i, (float)map.get(i) / (float)sum);
+    }
+    
+    return r;
+  }
+  
   private float calculateSimilarity(Map<Integer, Float> map1, Map<Integer, Float> map2) {
     float sum_up = 0.0f, sum1 = 0.0f, sum2 = 0.0f;
     
@@ -68,10 +94,35 @@ public class NEExpansion {
       sum2 += map2.get(ne2) * map2.get(ne2);
     }
     
-    return sum_up / (sum1 * sum2);
+    return (float) (sum_up / (Math.sqrt(sum1) * Math.sqrt(sum2)));
   }
   
-  public NEExpansion(Map<Integer, Map<Integer, Integer>> nemap) {
+  public float getSimilarity(String ne1, String ne2) {
+    int index1 = 0, index2 = 0;
+    if (NEDict.containsKey(ne1.toLowerCase())) {
+      index1 = NEDict.get(ne1.toLowerCase());
+    } else {
+      return 0.0f;
+    }
+    
+    if (NEDict.containsKey(ne2.toLowerCase())) {
+      index2 = NEDict.get(ne2.toLowerCase());
+    } else {
+      return 0.0f;
+    }
+    
+    System.out.println("CALCULATE SIMILARITY:" + ne1 + " " + ne2);
+    Map<Integer, Float> map1 = getNormalizedMap(NECooccur.get(index1));
+    Map<Integer, Float> map2 = getNormalizedMap(NECooccur.get(index2));
+    
+    return calculateSimilarity(map1, map2);
+  }
+  
+  public NEExpansion(Map<Integer, Map<Integer, Integer>> nemap,
+                     Map<String, Integer> dict, 
+                     Map<Integer, String> index) {
     NECooccur = nemap;
+    NEDict = dict;
+    NEIndex = index;
   }
 }

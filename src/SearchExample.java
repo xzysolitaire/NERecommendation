@@ -20,7 +20,7 @@ public class SearchExample {
       HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
       JSONParser parser = new JSONParser();
       GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
-      url.put("query", "sixers");
+      url.put("query", "clippers lakers");
 //      url.put("filter", "(all type:/music/artist created:\"The Lady Killer\")");
       url.put("limit", "10");
 //      url.put("indent", "true");

@@ -45,7 +45,7 @@ public class Indexer {
   
   //provide a link from each word of a name to a full name
   //used when there is perfect match for the name entity in the query
-  private Map<String, Set<Integer>> nameLink =
+  private static Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
   
   /*
@@ -417,7 +417,7 @@ public class Indexer {
   }
   
   private static void showEntry(String name) {
-    System.out.println("TEST CASE: " + name);
+    System.out.println("\n\nTEST CASE: " + name);
     if (NEDict.containsKey(name.toLowerCase())) {
       int index = NEDict.get(name.toLowerCase());
       for (Integer i: NECooccur.get(index).keySet()) {
@@ -425,8 +425,18 @@ public class Indexer {
           System.out.println(NEIndex.get(i) + "\t" + NECooccur.get(index).get(i));
         }
       }
-    } else {
-      System.out.println("No such name entity.");
+    }
+    
+    String[] temp = name.toLowerCase().split(" ");
+    if (temp.length >= 1) {
+      for (int i = 0; i < temp.length; i++) {
+        if (nameLink.containsKey(temp[i].toLowerCase())) {
+          System.out.println(temp[i] + ": " + nameLink.get(temp[i]).size());
+          for (Integer key: nameLink.get(temp[i])) {
+            System.out.println(NEIndex.get(key));
+          }
+        }
+      } 
     }
   }
   
@@ -436,7 +446,59 @@ public class Indexer {
       indexer.buildIndex();
       indexer.listInformation();
       List<Integer> results;
+      
+      //TEST CASE FOR NE EXPANSION
+      NEExpansion nee = new NEExpansion(NECooccur, NEDict, NEIndex);
+      showEntry("clippers");
+      showEntry("lakers");
+      System.out.println(nee.getSimilarity("Clippers", "Lakers"));
+      System.out.println(nee.getSimilarity("mavs", "Dallas Mavericks"));
+      System.out.println(nee.getSimilarity("sixers", "Dallas Mavericks"));
+      System.out.println(nee.getSimilarity("LeBron James", "James Harden"));
+      System.out.println(nee.getSimilarity("Los Angeles Lakers", "Lakers"));
+      System.out.println(nee.getSimilarity("Kobe", "Kobe Bryant"));
+      
+      System.out.println("\n\nTEST CASE FOR: LeBron James");
+      results = indexer.entityRecommend("LeBron James");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
 
+      System.out.println("\n\nTEST CASE FOR: NBA");
+      results = indexer.entityRecommend("nba");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+      
+      System.out.println("\n\nTEST CASE FOR: Damian Lillard");
+      results = indexer.entityRecommend("Damian Lillard");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+      
+      System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers");
+      results = indexer.entityRecommend("Los Angeles Lakers");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+      
+      System.out.println("\n\nTEST CASE FOR: Houston Rockets");
+      results = indexer.entityRecommend("Houston Rockets");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+      
+      System.out.println("\n\nTEST CASE FOR: Clippers Lakers");
+      results = indexer.entityRecommend("Clippers Lakers");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+
+      System.out.println("\n\nTEST CASE FOR: Lakers");
+      results = indexer.entityRecommend("Lakers");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
     } catch (ClassCastException | ClassNotFoundException | IOException e) {
       e.printStackTrace();
     }
