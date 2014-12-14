@@ -55,33 +55,28 @@ public class Indexer implements Serializable {
   private static Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
 
-  /*
-   * Record the document ids where the name entity appears
-   */
-  private Map<String, List<Integer>> NEDoc = new HashMap<String, List<Integer>>();
-
   public void constructIndex() throws IOException {
-    String indexFile = "index/final.idx";
-    ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(
-        indexFile));
-    writer.writeObject(this);
-    writer.close();
-    System.out.println("Store index to: " + indexFile);
+    if (isChanged) {
+      String indexFile = "index/final.idx";
+      ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(
+          indexFile));
+      writer.writeObject(this);
+      writer.close();
+      System.out.println("Store index to: " + indexFile);
+    }
   }
 
   public void loadIndex() throws IOException, ClassNotFoundException {
     String indexFile = "index/final.idx";
     System.out.println("Load index from: " + indexFile);
-    ObjectInputStream reader = new ObjectInputStream(new FileInputStream(
-        indexFile));
-    Indexer loaded = (Indexer) reader
-        .readObject();
+    ObjectInputStream reader = 
+        new ObjectInputStream(new FileInputStream(indexFile));
+    Indexer loaded = (Indexer) reader.readObject();
 
     this.NEDict = loaded.NEDict;
     this.NEIndex = loaded.NEIndex;
     this.NECooccur = loaded.NECooccur;
     this.nameLink = loaded.nameLink;
-    this.NEDoc = loaded.NEDoc;
     reader.close();
     isChanged = false;
   }
@@ -128,7 +123,7 @@ public class Indexer implements Serializable {
     }
   
     crossResolution(); //shallow cross-document resolution and merge entries
-    isChanged = false;
+    isChanged = true;
   }
 
   /*
@@ -187,7 +182,6 @@ public class Indexer implements Serializable {
   public void addFile(String fileLoc) throws IOException {
     BuildOneDoc(fileLoc);
     isChanged = true;
-
   }
 
   /*
@@ -251,6 +245,7 @@ public class Indexer implements Serializable {
         }        
         System.out.println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
         mergeMap(linkTo, ne); //merge NE(ne) to NE(linkTo)
+        NEIndex.put(ne, NEIndex.get(linkTo));  //change the index links to
         toRemove.add(ne);
       }
     }
@@ -410,20 +405,7 @@ public class Indexer implements Serializable {
 
     return r;
   }
-
-  public Indexer() throws ClassCastException, ClassNotFoundException,
-      IOException {
-    classifier = CRFClassifier.getClassifier(serializedClassifier);
-    this.numResults = 20;
-  }
-
-  public Indexer(int numResults) throws ClassCastException,
-      ClassNotFoundException, IOException {
-    classifier = CRFClassifier.getClassifier(serializedClassifier);
-    this.numResults = numResults;
-    this.isChanged = true;
-  }
-
+  
   public void listInformation() {
     System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
 //    for (String term: NECooccur.get("andrew wiggins").keySet()) {
@@ -457,6 +439,18 @@ public class Indexer implements Serializable {
         }
       } 
     }
+  }
+
+  public Indexer() throws ClassCastException, ClassNotFoundException,IOException {
+    classifier = CRFClassifier.getClassifier(serializedClassifier);
+    this.numResults = 20;
+  }
+  
+  public Indexer(int numResults) throws ClassCastException,
+    ClassNotFoundException, IOException {
+    classifier = CRFClassifier.getClassifier(serializedClassifier);
+    this.numResults = numResults;
+    this.isChanged = true;
   }
 
   public static void main(String[] args) {
@@ -507,8 +501,8 @@ public class Indexer implements Serializable {
         System.out.println(NEIndex.get(r));
       }
       
-      System.out.println("\n\nTEST CASE FOR: Clippers Lakers");
-      results = indexer.entityRecommend("Clippers Lakers");
+      System.out.println("\n\nTEST CASE FOR: lebron james harden");
+      results = indexer.entityRecommend("lebron james harden");
       for (Integer r: results) {
         System.out.println(NEIndex.get(r));
       }
