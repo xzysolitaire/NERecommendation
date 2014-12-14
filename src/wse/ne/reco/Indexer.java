@@ -43,16 +43,16 @@ public class Indexer implements Serializable {
   private AbstractSequenceClassifier<CoreLabel> classifier;
   
   //Name entity dictionary
-  private static Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+  private Map<String, Integer> NEDict = new HashMap<String, Integer>();
+  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
-  private static Map<Integer, Map<Integer, Integer>> NECooccur =
+  private Map<Integer, Map<Integer, Integer>> NECooccur =
       new HashMap<Integer, Map<Integer, Integer>>();
   
   //provide a link from each word of a name to a full name
   //used when there is perfect match for the name entity in the query
-  private static Map<String, Set<Integer>> nameLink =
+  private Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
 
   public void constructIndex() throws IOException {
@@ -298,7 +298,7 @@ public class Indexer implements Serializable {
   public List<Integer> entityRecommend(String query) {
     List<Integer> recoResults = new ArrayList<Integer>();
     query = query.toLowerCase();
-
+    System.out.println(query);
     // if it is in the NECooccur map, directly return the most co-occurred
     // entities
     if (NEDict.containsKey(query)) {
@@ -416,7 +416,7 @@ public class Indexer implements Serializable {
 //      //System.out.println(term);
 //    }
   }
-  
+  /*
   private static void showEntry(String name) {
     System.out.println("\n\nTEST CASE: " + name);
     if (NEDict.containsKey(name.toLowerCase())) {
@@ -440,6 +440,7 @@ public class Indexer implements Serializable {
       } 
     }
   }
+  */
 
   public Indexer() throws ClassCastException, ClassNotFoundException,IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
@@ -453,6 +454,7 @@ public class Indexer implements Serializable {
     this.isChanged = true;
   }
 
+  /*
   public static void main(String[] args) {
     try {
       Indexer indexer = new Indexer(20);
@@ -516,4 +518,5 @@ public class Indexer implements Serializable {
       e.printStackTrace();
     }
   }
+  */
 }

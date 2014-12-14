@@ -12,15 +12,6 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-/**
- * Handles each incoming query, students do not need to change this class except
- * to provide more query time CGI arguments and the HTML output.
- * 
- * N.B. This class is not thread-safe.
- * 
- * @author congyu
- * @author fdiaz
- */
 class QueryHandler implements HttpHandler {
 
   /**
@@ -68,7 +59,9 @@ class QueryHandler implements HttpHandler {
       } // End of iterating over params
     }
   }
+
   private Indexer indexer;
+
   public QueryHandler(Indexer indexer) {
     this.indexer = indexer;
   }
@@ -83,8 +76,10 @@ class QueryHandler implements HttpHandler {
     responseBody.close();
   }
 
-  private void constructHtmlOutput(StringBuffer response, String query) throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader("web/result.html"));
+  private void constructHtmlOutput(StringBuffer response, String query,
+      List<Integer> results) throws IOException {
+    BufferedReader reader = new BufferedReader(
+        new FileReader("web/result.html"));
     String line = null;
     StringBuilder sb = new StringBuilder();
     while ((line = reader.readLine()) != null) {
@@ -93,11 +88,29 @@ class QueryHandler implements HttpHandler {
     }
     reader.close();
     response.append(sb.toString() + "\n");
-    response.append("<input type='text' id='tags' class='search-bar' name='query' value='" + query + "'></input>");
-    response.append("<input type='button' id='submit' value='Search'></input>");
-    response.append("</div>");
-    
-    response.append("</body></html>");
+    response
+        .append("<input type='text' id='tags' class='search-bar' name='query' value='"
+            + query + "'></input>\n");
+    response
+        .append("<button type=\"button\" class=\"btn btn-default\" id=\"submit\">\n");
+    response
+        .append("<span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span>Search\n");
+    response.append("</button>\n");
+    response.append("</div></div>\n");
+    // response.append("<h3>Related Entity</h3>");
+    response.append("<table class=\"table table-striped\" >\n");
+    if (results.size() == 0) {
+      response.append("<caption>No Related Entity</caption><tbody>\n");
+    } else {
+      response.append("<caption>Related Entity</caption><tbody>\n");
+
+      for (Integer r : results) {
+        if (r != null) {
+          response.append("<tr><td>").append(r).append("</td></tr>\n");
+        }
+      }
+    }
+    response.append("</tbody></table></body></html>");
   }
 
   public void handle(HttpExchange exchange) throws IOException {
@@ -130,15 +143,18 @@ class QueryHandler implements HttpHandler {
       System.out.println("Query: " + uriQuery);
 
       if (uriPath.equals("/search")) {
-        
+
         StringBuffer response = new StringBuffer();
-        List<Integer> results = indexer.entityRecommend("indiana pacers");
+        List<Integer> results = indexer.entityRecommend(cgiArgs._query);
+        for (Integer r : results) {
+          System.out.println(r);
+        }
         switch (cgiArgs._outputFormat) {
         case TEXT:
           break;
         case HTML:
           // @CS2580: Plug in your HTML output
-          constructHtmlOutput(response,cgiArgs._query);
+          constructHtmlOutput(response, cgiArgs._query, results);
           break;
         default:
           // nothing

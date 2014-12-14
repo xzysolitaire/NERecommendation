@@ -73,8 +73,7 @@ public class SearchEngine {
 
   private static void startServing() throws IOException, ClassNotFoundException {
     // Create the handler and its associated indexer.
-    Indexer indexer = new Indexer();
-    
+    Indexer indexer = new Indexer();  
     indexer.loadIndex();
     QueryHandler handler = new QueryHandler(indexer);
     MainpageHandler indexHander = new MainpageHandler();
