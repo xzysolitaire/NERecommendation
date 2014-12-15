@@ -40,16 +40,16 @@ public class IndexerKB implements Serializable {
   private AbstractSequenceClassifier<CoreLabel> classifier;
   
   //Name entity dictionary
-  private static Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+  private Map<String, Integer> NEDict = new HashMap<String, Integer>();
+  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
-  private static Map<Integer, Map<Integer, Integer>> NECooccur =
+  private Map<Integer, Map<Integer, Integer>> NECooccur =
       new HashMap<Integer, Map<Integer, Integer>>();
   
   //provide a link from each word of a name to a full name
   //used when there is perfect match for the name entity in the query
-  private static Map<String, Set<Integer>> nameLink =
+  private Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
   
   //get name entities from Freebase 
@@ -401,49 +401,50 @@ public class IndexerKB implements Serializable {
   public static void main(String[] args) throws IOException, ParseException, InterruptedException {
     IndexerKB indexer = new IndexerKB(20);
     indexer.buildIndex();
-
+    indexer.constructIndex();
     List<Integer> results = new ArrayList<Integer>();
     System.out.println("\n\nTEST CASE FOR: LeBron James");
     results = indexer.entityRecommend("LeBron James");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
 
     System.out.println("\n\nTEST CASE FOR: NBA");
     results = indexer.entityRecommend("nba");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
     
     System.out.println("\n\nTEST CASE FOR: Damian Lillard");
     results = indexer.entityRecommend("Damian Lillard");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
     
     System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers");
     results = indexer.entityRecommend("Los Angeles Lakers");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
     
-    System.out.println("\n\nTEST CASE FOR: Houston Rockets");
-    results = indexer.entityRecommend("Houston Rockets");
-    for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
-    }
     
-    System.out.println("\n\nTEST CASE FOR: lebron james harden");
-    results = indexer.entityRecommend("lebron james harden");
-    for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
-    }
-
-    System.out.println("\n\nTEST CASE FOR: Lakers");
-    results = indexer.entityRecommend("Lakers");
-    for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
-    }
+//    System.out.println("\n\nTEST CASE FOR: Houston Rockets");
+//    results = indexer.entityRecommend("Houston Rockets");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
+//    
+//    System.out.println("\n\nTEST CASE FOR: lebron james harden");
+//    results = indexer.entityRecommend("lebron james harden");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
+//
+//    System.out.println("\n\nTEST CASE FOR: Lakers");
+//    results = indexer.entityRecommend("Lakers");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
 
   }
 }
