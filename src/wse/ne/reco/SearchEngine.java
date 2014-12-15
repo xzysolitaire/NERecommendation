@@ -22,6 +22,41 @@ public class SearchEngine {
       System.exit(-1);
     }
   }
+  
+  public static Options OPTIONS = null;
+  
+  public static class Options {
+    
+    public String _corpusPrefix = null;
+
+    public String _indexPrefix = null;
+  
+    public Options(String optionsFile) throws IOException {
+      // Read options from the file.
+      BufferedReader reader = new BufferedReader(new FileReader(optionsFile));
+      Map<String, String> options = new HashMap<String, String>();
+      String line = null;
+      while ((line = reader.readLine()) != null) {
+        line = line.trim();
+        if (line.isEmpty() || line.startsWith("#")) {
+          continue;
+        }
+        String[] vals = line.split(":", 2);
+        if (vals.length < 2) {
+          reader.close();
+          Check(false, "Wrong option: " + line);
+        }
+        options.put(vals[0].trim(), vals[1].trim());
+      }
+      reader.close();
+
+      // Populate global options.
+      _corpusPrefix = options.get("corpus_prefix");
+      Check(_corpusPrefix != null, "Missing option: corpus_prefix!");
+      _indexPrefix = options.get("index_prefix");
+      Check(_indexPrefix != null, "Missing option: index_prefix!");
+    }
+  }
 
   /**
    * Running mode of the search engine.
@@ -49,31 +84,24 @@ public class SearchEngine {
       } else if (key.equals("--port") || key.equals("-port")) {
         PORT = Integer.parseInt(value);
       } else if (key.equals("--options") || key.equals("-options")) {
-        //OPTIONS = new Options(value);
+        OPTIONS = new Options(value);
       }
     }
     Check(MODE == Mode.SERVE || MODE == Mode.INDEX || MODE == Mode.MINING,
         "Must provide a valid mode: serve or index or mining!");
     Check(MODE != Mode.SERVE || PORT != -1,
         "Must provide a valid port number (258XX) in serve mode!");
-    //Check(OPTIONS != null, "Must provide options!");
-  }
-
-  // /// Main functionalities start
-
-  private static void startMining() throws IOException,
-      NoSuchAlgorithmException {
-    return;
+    Check(OPTIONS != null, "Must provide options!");
   }
 
   private static void startIndexing() throws IOException, ClassCastException, ClassNotFoundException {
-    Indexer indexer = new Indexer();
-    //indexer.constructIndex();
+    Indexer indexer = new Indexer(OPTIONS);
+    indexer.constructIndex();
   }
 
   private static void startServing() throws IOException, ClassNotFoundException {
     // Create the handler and its associated indexer.
-    Indexer indexer = new Indexer();  
+    Indexer indexer = new Indexer(OPTIONS);  
     indexer.loadIndex();
     QueryHandler handler = new QueryHandler(indexer);
     MainpageHandler indexHander = new MainpageHandler();
@@ -95,9 +123,6 @@ public class SearchEngine {
     try {
       SearchEngine.parseCommandLine(args);
       switch (SearchEngine.MODE) {
-      case MINING:
-        startMining();
-        break;
       case INDEX:
         startIndexing();
         break;

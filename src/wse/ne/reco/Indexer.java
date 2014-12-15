@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wse.ne.reco.SearchEngine.Options;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.*;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -30,29 +31,27 @@ import edu.stanford.nlp.ling.CoreLabel;
  */
 
 public class Indexer implements Serializable {
-
+  private Options OPTIONS = null;
   private static final long serialVersionUID = -8440505010398627617L;
-  private static final String sourceDir = "data/stories";
+  private static final String sourceDir = "data/stories_whole";
   private int numResults;
-  private boolean isChanged;  //record whether the current index has been modified
-  
-  //the classifier file 
-  private static final String serializedClassifier = 
-      "data/english.conll.4class.distsim.crf.ser.gz";
-  private AbstractSequenceClassifier<CoreLabel> classifier;
-  
-  //Name entity dictionary
+  private boolean isChanged; // record whether the current index has been
+                             // modified
+
+  // the classifier file
+  private static final String serializedClassifier = "data/english.conll.4class.distsim.crf.ser.gz";
+  private transient AbstractSequenceClassifier<CoreLabel> classifier;
+
+  // Name entity dictionary
   private Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
-  
-  //the map of recording the co-occurrence relation between name entities 
-  private Map<Integer, Map<Integer, Integer>> NECooccur =
-      new HashMap<Integer, Map<Integer, Integer>>();
-  
-  //provide a link from each word of a name to a full name
-  //used when there is perfect match for the name entity in the query
-  private Map<String, Set<Integer>> nameLink =
-      new HashMap<String, Set<Integer>>();
+  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+
+  // the map of recording the co-occurrence relation between name entities
+  private Map<Integer, Map<Integer, Integer>> NECooccur = new HashMap<Integer, Map<Integer, Integer>>();
+
+  // provide a link from each word of a name to a full name
+  // used when there is perfect match for the name entity in the query
+  private Map<String, Set<Integer>> nameLink = new HashMap<String, Set<Integer>>();
 
   public void constructIndex() throws IOException {
     if (isChanged) {
@@ -68,8 +67,8 @@ public class Indexer implements Serializable {
   public void loadIndex() throws IOException, ClassNotFoundException {
     String indexFile = "index/final.idx";
     System.out.println("Load index from: " + indexFile);
-    ObjectInputStream reader = 
-        new ObjectInputStream(new FileInputStream(indexFile));
+    ObjectInputStream reader = new ObjectInputStream(new FileInputStream(
+        indexFile));
     Indexer loaded = (Indexer) reader.readObject();
 
     this.NEDict = loaded.NEDict;
@@ -109,7 +108,9 @@ public class Indexer implements Serializable {
   private void buildIndex() throws IOException {
     List<File> files = new ArrayList<File>();
     try {
-      files = getFilesUnderDirectory(sourceDir);
+      String source = this.OPTIONS._corpusPrefix;
+      files = getFilesUnderDirectory(source);
+      
     } catch (IOException e) {
       System.err.println(e.getMessage());
     }
@@ -120,8 +121,8 @@ public class Indexer implements Serializable {
       System.out.println("Processing document " + i + ": " + files.get(i).getName());
       BuildOneDoc(files.get(i).getPath());
     }
-  
-    crossResolution(); //shallow cross-document resolution and merge entries
+
+    crossResolution(); // shallow cross-document resolution and merge entries
     isChanged = true;
   }
 
@@ -151,9 +152,9 @@ public class Indexer implements Serializable {
 
       entityIndexes.add(NEDict.get(term.toLowerCase()));
     }
-    
-    //add reversed index in the nameLink
-    for (String term: resolvedEntities) {
+
+    // add reversed index in the nameLink
+    for (String term : resolvedEntities) {
       if (term.split(" ").length > 1) {
         String[] temp = term.split(" ");
         for (int i = 0; i < temp.length; i++) {
@@ -167,7 +168,7 @@ public class Indexer implements Serializable {
             nameLink.put(temp[i].toLowerCase(), s);
           }
         }
-      } 
+      }
     }
 
     if (resolvedEntities.size() > 1) {
@@ -211,15 +212,15 @@ public class Indexer implements Serializable {
   private Set<String> entityLinkingResolution(Set<String> entities) {
     Set<String> r = new HashSet<String>();
     Set<String> temp = new HashSet<String>();
-    for (String n1: entities) {
-      for (String n2: entities) {
+    for (String n1 : entities) {
+      for (String n2 : entities) {
         if (!n1.equals(n2) && n1.contains(n2)) {
           temp.add(n2);
         }
       }
     }
-    
-    for (String e: entities) {
+
+    for (String e : entities) {
       if (!temp.contains(e)) {
         r.add(e);
       }
@@ -227,19 +228,18 @@ public class Indexer implements Serializable {
 
     return r;
   }
-  
+
   /*
-   * Shallow cross-document resolution
-   * if the term only links to one name entity in the corpus,
-   *   then merge these two maps
+   * Shallow cross-document resolution if the term only links to one name entity
+   * in the corpus, then merge these two maps
    */
   void crossResolution() {
     List<Integer> toRemove = new ArrayList<Integer>();
-    for (Integer ne: NECooccur.keySet()) {
-      if (nameLink.containsKey(NEIndex.get(ne)) &&
-          nameLink.get(NEIndex.get(ne)).size() == 1) {
+    for (Integer ne : NECooccur.keySet()) {
+      if (nameLink.containsKey(NEIndex.get(ne))
+          && nameLink.get(NEIndex.get(ne)).size() == 1) {
         Integer linkTo = 0;
-        for (Integer temp: nameLink.get(NEIndex.get(ne))) {
+        for (Integer temp : nameLink.get(NEIndex.get(ne))) {
           linkTo = temp;
         }        
         System.out.println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
@@ -249,8 +249,8 @@ public class Indexer implements Serializable {
         toRemove.add(ne);
       }
     }
-    
-    for (Integer index: toRemove) {
+
+    for (Integer index : toRemove) {
       NECooccur.remove(index);
     }
   }
@@ -301,12 +301,11 @@ public class Indexer implements Serializable {
     
     // if it is in the NECooccur map, directly return the most co-occurred
     // entities
+
     if (NEDict.containsKey(query)) {
-      System.out.println("The entity is in the NECooccur.");
       int queryid = NEDict.get(query);
       return TopKMap.sortMap(numResults, NECooccur.get(queryid));
     } else {
-      System.out.println("The entitiy is OOV.");
       if (query.split(" ").length > 1) { // provide the intersection of the
                                          // lists
         int j = 0;
@@ -358,11 +357,20 @@ public class Indexer implements Serializable {
     }
   }
 
+  public List<String> testEntityRecommend(String query) {
+    List<String> result = new ArrayList<String>();
+    List<Integer> temp = entityRecommend(query);
+    for (Integer i : temp) {
+      result.add(NEIndex.get(i));
+    }
+    return result;
+  }
+
   /*
    * Merge two entries in the NECooccur index
    */
   private void mergeMap(Integer linkTo, Integer ne) {
-    for (Integer index: NECooccur.get(ne).keySet()) {
+    for (Integer index : NECooccur.get(ne).keySet()) {
       if (NECooccur.get(linkTo).containsKey(index)) {
         int ov = NECooccur.get(linkTo).get(index);
         NECooccur.get(linkTo).put(index, ov + NECooccur.get(ne).get(index));
@@ -371,7 +379,7 @@ public class Indexer implements Serializable {
       }
     }
   }
-  
+
   /*
    * Show results
    */
@@ -408,74 +416,30 @@ public class Indexer implements Serializable {
     return r;
   }
 
-  public Indexer() throws ClassCastException, ClassNotFoundException,IOException {
+  public Indexer(Options OPTIONS) throws ClassCastException,
+      ClassNotFoundException, IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
     this.numResults = 20;
+    this.OPTIONS = OPTIONS;
   }
-  
+
+  public Indexer(int numResults, Options OPTIONS) throws ClassCastException,
+      ClassNotFoundException, IOException {
+    classifier = CRFClassifier.getClassifier(serializedClassifier);
+    this.numResults = numResults;
+    this.OPTIONS = OPTIONS;
+    this.isChanged = true;
+  }
+
   public Indexer(int numResults) throws ClassCastException,
-    ClassNotFoundException, IOException {
+      ClassNotFoundException, IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
     this.numResults = numResults;
     this.isChanged = true;
   }
 
   public static void main(String[] args) {
-    try {
-      Indexer indexer = new Indexer(20);
-      indexer.buildIndex();
-      List<Integer> results;
 
-      System.out.println("\n\nTEST CASE FOR: LeBron James");
-      results = indexer.entityRecommend("LeBron James");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-
-      System.out.println("\n\nTEST CASE FOR: Yankee");
-      results = indexer.entityRecommend("yankee");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Damian Lillard");
-      results = indexer.entityRecommend("Damian Lillard");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers");
-      results = indexer.entityRecommend("Los Angeles Lakers");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Houston Rockets");
-      results = indexer.entityRecommend("Houston Rockets");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: james");
-      results = indexer.entityRecommend("james");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-
-      System.out.println("\n\nTEST CASE FOR: Yankees");
-      results = indexer.entityRecommend("Yankees");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Yankee");
-      results = indexer.entityRecommend("Yankee");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-    } catch (ClassCastException | ClassNotFoundException | IOException e) {
-      e.printStackTrace();
-    }
   }
 
 }

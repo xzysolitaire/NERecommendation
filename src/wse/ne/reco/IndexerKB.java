@@ -30,30 +30,30 @@ import edu.stanford.nlp.ling.CoreLabel;
 
 public class IndexerKB implements Serializable {
   
-  private static final String sourceDir = "data/testdata";
+  private static final String sourceDir = "data/stories";
   private int numResults;
   private boolean isChanged;  //record whether the current index has been modified
   
   //the classifier file 
   private static final String serializedClassifier = 
       "data/english.conll.4class.distsim.crf.ser.gz";
-  private AbstractSequenceClassifier<CoreLabel> classifier;
+  private transient AbstractSequenceClassifier<CoreLabel> classifier;
   
   //Name entity dictionary
-  private static Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+  private Map<String, Integer> NEDict = new HashMap<String, Integer>();
+  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
-  private static Map<Integer, Map<Integer, Integer>> NECooccur =
+  private Map<Integer, Map<Integer, Integer>> NECooccur =
       new HashMap<Integer, Map<Integer, Integer>>();
   
   //provide a link from each word of a name to a full name
   //used when there is perfect match for the name entity in the query
-  private static Map<String, Set<Integer>> nameLink =
+  private Map<String, Set<Integer>> nameLink =
       new HashMap<String, Set<Integer>>();
   
   //get name entities from Freebase 
-  private GetFreebaseNE KB = new GetFreebaseNE(); 
+  private transient GetFreebaseNE KB = new GetFreebaseNE(); 
   
   public void constructIndex() throws IOException {
     String indexFile = "index/final.idx";
@@ -122,6 +122,7 @@ public class IndexerKB implements Serializable {
     for (int i = 0; i < files.size(); i++) {
       System.out.println("Processing document:" + files.get(i).getName());
       BuildOneDoc(files.get(i).getPath(), docNE);
+      System.out.println("Build done " + i);
     }
     
     //cross-document resolution
@@ -243,7 +244,7 @@ public class IndexerKB implements Serializable {
         if (!NEDict.containsKey(entity)) {
           toRemove.add(entity);
           String KBne = KB.getNE(entity);
-          //Thread.sleep(100);
+          //Thread.sleep(200);
           if (NEDict.containsKey(KBne)) { 
             if (!entities.contains(KBne)) {
               entities.add(KBne);
@@ -415,9 +416,16 @@ public class IndexerKB implements Serializable {
     }
   }
   
-  public static void main(String[] args) throws IOException, ParseException, InterruptedException {
+  public static void main(String[] args) {
     IndexerKB indexer = new IndexerKB(20);
-    indexer.buildIndex();
+    try {
+      indexer.buildIndex();
+      indexer.constructIndex();
+    } catch ( Exception e) {
+     
+    }
+    
+
     List<Integer> results = new ArrayList<Integer>();
     
 //    for (int i = 0; i < NEIndex.size(); i++) {
@@ -429,6 +437,7 @@ public class IndexerKB implements Serializable {
 //      System.out.println(NEDict.get(ne));
 //    }
 //    
+    /*
     System.out.println(NECooccur.size());
     System.out.println(NECooccur.get(NEDict.get("chicago bulls")).keySet().size());
     for (Integer index: NECooccur.get(NEDict.get("chicago bulls")).keySet()) {
@@ -438,14 +447,48 @@ public class IndexerKB implements Serializable {
     System.out.println("\n\nTEST CASE FOR: Chicago Bulls");
     results = indexer.entityRecommend("chicago Bulls");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
 
     System.out.println("\n\nTEST CASE FOR: Bulls");
     results = indexer.entityRecommend("Bulls");
     for (Integer r: results) {
-      System.out.println(NEIndex.get(r));
+      System.out.println(indexer.NEIndex.get(r));
     }
+<<<<<<< HEAD
+    
+    System.out.println("\n\nTEST CASE FOR: Damian Lillard");
+    results = indexer.entityRecommend("Damian Lillard");
+    for (Integer r: results) {
+      System.out.println(indexer.NEIndex.get(r));
+    }
+    
+    System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers");
+    results = indexer.entityRecommend("Los Angeles Lakers");
+    for (Integer r: results) {
+      System.out.println(indexer.NEIndex.get(r));
+    }
+    
+    
+//    System.out.println("\n\nTEST CASE FOR: Houston Rockets");
+//    results = indexer.entityRecommend("Houston Rockets");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
+//    
+//    System.out.println("\n\nTEST CASE FOR: lebron james harden");
+//    results = indexer.entityRecommend("lebron james harden");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
+//
+//    System.out.println("\n\nTEST CASE FOR: Lakers");
+//    results = indexer.entityRecommend("Lakers");
+//    for (Integer r: results) {
+//      System.out.println(NEIndex.get(r));
+//    }
+
+=======
 //    
 //    System.out.println("\n\nTEST CASE FOR: Damian Lillard");
 //    results = indexer.entityRecommend("Damian Lillard");
@@ -482,5 +525,7 @@ public class IndexerKB implements Serializable {
 //    for (Integer r: results) {
 //      System.out.println(NEIndex.get(r));
 //    }
+>>>>>>> branch 'master' of https://github.com/xzysolitaire/NERecommendation.git
+*/
   }
 }
