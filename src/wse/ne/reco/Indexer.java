@@ -32,7 +32,6 @@ import edu.stanford.nlp.ling.CoreLabel;
 public class Indexer implements Serializable {
 
   private static final long serialVersionUID = -8440505010398627617L;
-  private static final String WORKDIR = "";
   private static final String sourceDir = "data/stories";
   private int numResults;
   private boolean isChanged;  //record whether the current index has been modified
@@ -44,7 +43,7 @@ public class Indexer implements Serializable {
   
   //Name entity dictionary
   private Map<String, Integer> NEDict = new HashMap<String, Integer>();
-  private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
+  private static Map<Integer, String> NEIndex = new HashMap<Integer, String>();
   
   //the map of recording the co-occurrence relation between name entities 
   private Map<Integer, Map<Integer, Integer>> NECooccur =
@@ -118,7 +117,7 @@ public class Indexer implements Serializable {
     System.out.println("Total Document Size " + files_size);
 
     for (int i = 0; i < files.size(); i++) {
-      System.out.println("Processing document:" + files.get(i).getName());
+      System.out.println("Processing document " + i + ": " + files.get(i).getName());
       BuildOneDoc(files.get(i).getPath());
     }
   
@@ -245,6 +244,7 @@ public class Indexer implements Serializable {
         }        
         System.out.println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
         mergeMap(linkTo, ne); //merge NE(ne) to NE(linkTo)
+        NEDict.remove(NEIndex.get(ne));
         NEIndex.put(ne, NEIndex.get(linkTo));  //change the index links to
         toRemove.add(ne);
       }
@@ -298,13 +298,15 @@ public class Indexer implements Serializable {
   public List<Integer> entityRecommend(String query) {
     List<Integer> recoResults = new ArrayList<Integer>();
     query = query.toLowerCase();
-    System.out.println(query);
+    
     // if it is in the NECooccur map, directly return the most co-occurred
     // entities
     if (NEDict.containsKey(query)) {
+      System.out.println("The entity is in the NECooccur.");
       int queryid = NEDict.get(query);
       return TopKMap.sortMap(numResults, NECooccur.get(queryid));
     } else {
+      System.out.println("The entitiy is OOV.");
       if (query.split(" ").length > 1) { // provide the intersection of the
                                          // lists
         int j = 0;
@@ -405,42 +407,6 @@ public class Indexer implements Serializable {
 
     return r;
   }
-  
-  public void listInformation() {
-    System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
-//    for (String term: NECooccur.get("andrew wiggins").keySet()) {
-//      System.out.println(term);
-//      System.out.println(NECooccur.get("andrew wiggins").get(term));
-//    }
-//    for (String term: nameLink.get("hawk")) {
-//      //System.out.println(term);
-//    }
-  }
-  /*
-  private static void showEntry(String name) {
-    System.out.println("\n\nTEST CASE: " + name);
-    if (NEDict.containsKey(name.toLowerCase())) {
-      int index = NEDict.get(name.toLowerCase());
-      for (Integer i: NECooccur.get(index).keySet()) {
-        if (NECooccur.get(index).get(i) > 3) {
-          System.out.println(NEIndex.get(i) + "\t" + NECooccur.get(index).get(i));
-        }
-      }
-    }
-    
-    String[] temp = name.toLowerCase().split(" ");
-    if (temp.length >= 1) {
-      for (int i = 0; i < temp.length; i++) {
-        if (nameLink.containsKey(temp[i].toLowerCase())) {
-          System.out.println(temp[i] + ": " + nameLink.get(temp[i]).size());
-          for (Integer key: nameLink.get(temp[i])) {
-            System.out.println(NEIndex.get(key));
-          }
-        }
-      } 
-    }
-  }
-  */
 
   public Indexer() throws ClassCastException, ClassNotFoundException,IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
@@ -454,33 +420,20 @@ public class Indexer implements Serializable {
     this.isChanged = true;
   }
 
-  /*
   public static void main(String[] args) {
     try {
       Indexer indexer = new Indexer(20);
       indexer.buildIndex();
-      indexer.listInformation();
       List<Integer> results;
-      
-      //TEST CASE FOR NE EXPANSION
-      NEExpansion nee = new NEExpansion(NECooccur, NEDict, NEIndex);
-      showEntry("clippers");
-      showEntry("lakers");
-      System.out.println(nee.getSimilarity("Clippers", "Lakers"));
-      System.out.println(nee.getSimilarity("mavs", "Dallas Mavericks"));
-      System.out.println(nee.getSimilarity("sixers", "Dallas Mavericks"));
-      System.out.println(nee.getSimilarity("LeBron James", "James Harden"));
-      System.out.println(nee.getSimilarity("Los Angeles Lakers", "Lakers"));
-      System.out.println(nee.getSimilarity("Kobe", "Kobe Bryant"));
-      
+
       System.out.println("\n\nTEST CASE FOR: LeBron James");
       results = indexer.entityRecommend("LeBron James");
       for (Integer r: results) {
         System.out.println(NEIndex.get(r));
       }
 
-      System.out.println("\n\nTEST CASE FOR: NBA");
-      results = indexer.entityRecommend("nba");
+      System.out.println("\n\nTEST CASE FOR: Yankee");
+      results = indexer.entityRecommend("yankee");
       for (Integer r: results) {
         System.out.println(NEIndex.get(r));
       }
@@ -509,8 +462,14 @@ public class Indexer implements Serializable {
         System.out.println(NEIndex.get(r));
       }
 
-      System.out.println("\n\nTEST CASE FOR: Lakers");
-      results = indexer.entityRecommend("Lakers");
+      System.out.println("\n\nTEST CASE FOR: Yankees");
+      results = indexer.entityRecommend("Yankees");
+      for (Integer r: results) {
+        System.out.println(NEIndex.get(r));
+      }
+      
+      System.out.println("\n\nTEST CASE FOR: Yankee");
+      results = indexer.entityRecommend("Yankee");
       for (Integer r: results) {
         System.out.println(NEIndex.get(r));
       }
@@ -518,5 +477,5 @@ public class Indexer implements Serializable {
       e.printStackTrace();
     }
   }
-  */
+
 }
