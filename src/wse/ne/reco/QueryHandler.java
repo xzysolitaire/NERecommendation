@@ -77,7 +77,7 @@ class QueryHandler implements HttpHandler {
   }
 
   private void constructHtmlOutput(StringBuffer response, String query,
-      List<Integer> results) throws IOException {
+      List<String> results) throws IOException {
     BufferedReader reader = new BufferedReader(
         new FileReader("web/result.html"));
     String line = null;
@@ -104,7 +104,7 @@ class QueryHandler implements HttpHandler {
     } else {
       response.append("<caption>Related Entity</caption><tbody>\n");
 
-      for (Integer r : results) {
+      for (String r : results) {
         if (r != null) {
           response.append("<tr><td>").append(r).append("</td></tr>\n");
         }
@@ -146,6 +146,7 @@ class QueryHandler implements HttpHandler {
 
         StringBuffer response = new StringBuffer();
         List<Integer> results = indexer.entityRecommend(cgiArgs._query);
+        List<String> newResults = indexer.testEntityRecommend(cgiArgs._query);
         for (Integer r : results) {
           System.out.println(r);
         }
@@ -154,7 +155,7 @@ class QueryHandler implements HttpHandler {
           break;
         case HTML:
           // @CS2580: Plug in your HTML output
-          constructHtmlOutput(response, cgiArgs._query, results);
+          constructHtmlOutput(response, cgiArgs._query, newResults);
           break;
         default:
           // nothing

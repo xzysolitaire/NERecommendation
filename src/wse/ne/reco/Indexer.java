@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wse.ne.reco.SearchEngine.Options;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.*;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -31,29 +32,27 @@ import edu.stanford.nlp.ling.CoreLabel;
 
 public class Indexer implements Serializable {
 
+  private Options OPTIONS = null;
   private static final long serialVersionUID = -8440505010398627617L;
-  private static final String WORKDIR = "";
-  private static final String sourceDir = "data/stories";
+  private static final String sourceDir = "data/stories_whole";
   private int numResults;
-  private boolean isChanged;  //record whether the current index has been modified
-  
-  //the classifier file 
-  private static final String serializedClassifier = 
-      "data/english.conll.4class.distsim.crf.ser.gz";
-  private AbstractSequenceClassifier<CoreLabel> classifier;
-  
-  //Name entity dictionary
+  private boolean isChanged; // record whether the current index has been
+                             // modified
+
+  // the classifier file
+  private static final String serializedClassifier = "data/english.conll.4class.distsim.crf.ser.gz";
+  private transient AbstractSequenceClassifier<CoreLabel> classifier;
+
+  // Name entity dictionary
   private Map<String, Integer> NEDict = new HashMap<String, Integer>();
   private Map<Integer, String> NEIndex = new HashMap<Integer, String>();
-  
-  //the map of recording the co-occurrence relation between name entities 
-  private Map<Integer, Map<Integer, Integer>> NECooccur =
-      new HashMap<Integer, Map<Integer, Integer>>();
-  
-  //provide a link from each word of a name to a full name
-  //used when there is perfect match for the name entity in the query
-  private Map<String, Set<Integer>> nameLink =
-      new HashMap<String, Set<Integer>>();
+
+  // the map of recording the co-occurrence relation between name entities
+  private Map<Integer, Map<Integer, Integer>> NECooccur = new HashMap<Integer, Map<Integer, Integer>>();
+
+  // provide a link from each word of a name to a full name
+  // used when there is perfect match for the name entity in the query
+  private Map<String, Set<Integer>> nameLink = new HashMap<String, Set<Integer>>();
 
   public void constructIndex() throws IOException {
     if (isChanged) {
@@ -69,8 +68,8 @@ public class Indexer implements Serializable {
   public void loadIndex() throws IOException, ClassNotFoundException {
     String indexFile = "index/final.idx";
     System.out.println("Load index from: " + indexFile);
-    ObjectInputStream reader = 
-        new ObjectInputStream(new FileInputStream(indexFile));
+    ObjectInputStream reader = new ObjectInputStream(new FileInputStream(
+        indexFile));
     Indexer loaded = (Indexer) reader.readObject();
 
     this.NEDict = loaded.NEDict;
@@ -110,7 +109,9 @@ public class Indexer implements Serializable {
   private void buildIndex() throws IOException {
     List<File> files = new ArrayList<File>();
     try {
-      files = getFilesUnderDirectory(sourceDir);
+      String source = this.OPTIONS._corpusPrefix;
+      files = getFilesUnderDirectory(source);
+      
     } catch (IOException e) {
       System.err.println(e.getMessage());
     }
@@ -121,8 +122,8 @@ public class Indexer implements Serializable {
       System.out.println("Processing document:" + files.get(i).getName());
       BuildOneDoc(files.get(i).getPath());
     }
-  
-    crossResolution(); //shallow cross-document resolution and merge entries
+
+    crossResolution(); // shallow cross-document resolution and merge entries
     isChanged = true;
   }
 
@@ -152,9 +153,9 @@ public class Indexer implements Serializable {
 
       entityIndexes.add(NEDict.get(term.toLowerCase()));
     }
-    
-    //add reversed index in the nameLink
-    for (String term: resolvedEntities) {
+
+    // add reversed index in the nameLink
+    for (String term : resolvedEntities) {
       if (term.split(" ").length > 1) {
         String[] temp = term.split(" ");
         for (int i = 0; i < temp.length; i++) {
@@ -168,7 +169,7 @@ public class Indexer implements Serializable {
             nameLink.put(temp[i].toLowerCase(), s);
           }
         }
-      } 
+      }
     }
 
     if (resolvedEntities.size() > 1) {
@@ -212,15 +213,15 @@ public class Indexer implements Serializable {
   private Set<String> entityLinkingResolution(Set<String> entities) {
     Set<String> r = new HashSet<String>();
     Set<String> temp = new HashSet<String>();
-    for (String n1: entities) {
-      for (String n2: entities) {
+    for (String n1 : entities) {
+      for (String n2 : entities) {
         if (!n1.equals(n2) && n1.contains(n2)) {
           temp.add(n2);
         }
       }
     }
-    
-    for (String e: entities) {
+
+    for (String e : entities) {
       if (!temp.contains(e)) {
         r.add(e);
       }
@@ -228,29 +229,29 @@ public class Indexer implements Serializable {
 
     return r;
   }
-  
+
   /*
-   * Shallow cross-document resolution
-   * if the term only links to one name entity in the corpus,
-   *   then merge these two maps
+   * Shallow cross-document resolution if the term only links to one name entity
+   * in the corpus, then merge these two maps
    */
   void crossResolution() {
     List<Integer> toRemove = new ArrayList<Integer>();
-    for (Integer ne: NECooccur.keySet()) {
-      if (nameLink.containsKey(NEIndex.get(ne)) &&
-          nameLink.get(NEIndex.get(ne)).size() == 1) {
+    for (Integer ne : NECooccur.keySet()) {
+      if (nameLink.containsKey(NEIndex.get(ne))
+          && nameLink.get(NEIndex.get(ne)).size() == 1) {
         Integer linkTo = 0;
-        for (Integer temp: nameLink.get(NEIndex.get(ne))) {
+        for (Integer temp : nameLink.get(NEIndex.get(ne))) {
           linkTo = temp;
-        }        
-        System.out.println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
-        mergeMap(linkTo, ne); //merge NE(ne) to NE(linkTo)
-        NEIndex.put(ne, NEIndex.get(linkTo));  //change the index links to
+        }
+        System.out
+            .println(NEIndex.get(ne) + " links to " + NEIndex.get(linkTo));
+        mergeMap(linkTo, ne); // merge NE(ne) to NE(linkTo)
+        NEIndex.put(ne, NEIndex.get(linkTo)); // change the index links to
         toRemove.add(ne);
       }
     }
-    
-    for (Integer index: toRemove) {
+
+    for (Integer index : toRemove) {
       NECooccur.remove(index);
     }
   }
@@ -301,7 +302,7 @@ public class Indexer implements Serializable {
     System.out.println(query);
     // if it is in the NECooccur map, directly return the most co-occurred
     // entities
-    if (NEDict.containsKey(query)) {
+    if (NECooccur.containsKey(query)) {
       int queryid = NEDict.get(query);
       return TopKMap.sortMap(numResults, NECooccur.get(queryid));
     } else {
@@ -356,11 +357,20 @@ public class Indexer implements Serializable {
     }
   }
 
+  public List<String> testEntityRecommend(String query) {
+    List<String> result = new ArrayList<String>();
+    List<Integer> temp = entityRecommend(query);
+    for (Integer i : temp) {
+      result.add(NEIndex.get(i));
+    }
+    return result;
+  }
+
   /*
    * Merge two entries in the NECooccur index
    */
   private void mergeMap(Integer linkTo, Integer ne) {
-    for (Integer index: NECooccur.get(ne).keySet()) {
+    for (Integer index : NECooccur.get(ne).keySet()) {
       if (NECooccur.get(linkTo).containsKey(index)) {
         int ov = NECooccur.get(linkTo).get(index);
         NECooccur.get(linkTo).put(index, ov + NECooccur.get(ne).get(index));
@@ -369,7 +379,7 @@ public class Indexer implements Serializable {
       }
     }
   }
-  
+
   /*
    * Show results
    */
@@ -405,118 +415,106 @@ public class Indexer implements Serializable {
 
     return r;
   }
-  
-  public void listInformation() {
-    System.out.println("There are overall " + NECooccur.keySet().size() + " entities.");
-//    for (String term: NECooccur.get("andrew wiggins").keySet()) {
-//      System.out.println(term);
-//      System.out.println(NECooccur.get("andrew wiggins").get(term));
-//    }
-//    for (String term: nameLink.get("hawk")) {
-//      //System.out.println(term);
-//    }
-  }
-  /*
-  private static void showEntry(String name) {
-    System.out.println("\n\nTEST CASE: " + name);
-    if (NEDict.containsKey(name.toLowerCase())) {
-      int index = NEDict.get(name.toLowerCase());
-      for (Integer i: NECooccur.get(index).keySet()) {
-        if (NECooccur.get(index).get(i) > 3) {
-          System.out.println(NEIndex.get(i) + "\t" + NECooccur.get(index).get(i));
-        }
-      }
-    }
-    
-    String[] temp = name.toLowerCase().split(" ");
-    if (temp.length >= 1) {
-      for (int i = 0; i < temp.length; i++) {
-        if (nameLink.containsKey(temp[i].toLowerCase())) {
-          System.out.println(temp[i] + ": " + nameLink.get(temp[i]).size());
-          for (Integer key: nameLink.get(temp[i])) {
-            System.out.println(NEIndex.get(key));
-          }
-        }
-      } 
-    }
-  }
-  */
 
-  public Indexer() throws ClassCastException, ClassNotFoundException,IOException {
+  public void listInformation() {
+    System.out.println("There are overall " + NECooccur.keySet().size()
+        + " entities.");
+    // for (String term: NECooccur.get("andrew wiggins").keySet()) {
+    // System.out.println(term);
+    // System.out.println(NECooccur.get("andrew wiggins").get(term));
+    // }
+    // for (String term: nameLink.get("hawk")) {
+    // //System.out.println(term);
+    // }
+  }
+
+  /*
+   * private static void showEntry(String name) {
+   * System.out.println("\n\nTEST CASE: " + name); if
+   * (NEDict.containsKey(name.toLowerCase())) { int index =
+   * NEDict.get(name.toLowerCase()); for (Integer i:
+   * NECooccur.get(index).keySet()) { if (NECooccur.get(index).get(i) > 3) {
+   * System.out.println(NEIndex.get(i) + "\t" + NECooccur.get(index).get(i)); }
+   * } }
+   * 
+   * String[] temp = name.toLowerCase().split(" "); if (temp.length >= 1) { for
+   * (int i = 0; i < temp.length; i++) { if
+   * (nameLink.containsKey(temp[i].toLowerCase())) { System.out.println(temp[i]
+   * + ": " + nameLink.get(temp[i]).size()); for (Integer key:
+   * nameLink.get(temp[i])) { System.out.println(NEIndex.get(key)); } } } } }
+   */
+
+  public Indexer(Options OPTIONS) throws ClassCastException,
+      ClassNotFoundException, IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
     this.numResults = 20;
+    this.OPTIONS = OPTIONS;
   }
-  
+
+  public Indexer(int numResults, Options OPTIONS) throws ClassCastException,
+      ClassNotFoundException, IOException {
+    classifier = CRFClassifier.getClassifier(serializedClassifier);
+    this.numResults = numResults;
+    this.OPTIONS = OPTIONS;
+    this.isChanged = true;
+  }
+
   public Indexer(int numResults) throws ClassCastException,
-    ClassNotFoundException, IOException {
+      ClassNotFoundException, IOException {
     classifier = CRFClassifier.getClassifier(serializedClassifier);
     this.numResults = numResults;
     this.isChanged = true;
   }
 
-  /*
   public static void main(String[] args) {
     try {
       Indexer indexer = new Indexer(20);
       indexer.buildIndex();
+      indexer.constructIndex();
       indexer.listInformation();
       List<Integer> results;
-      
-      //TEST CASE FOR NE EXPANSION
-      NEExpansion nee = new NEExpansion(NECooccur, NEDict, NEIndex);
-      showEntry("clippers");
-      showEntry("lakers");
-      System.out.println(nee.getSimilarity("Clippers", "Lakers"));
-      System.out.println(nee.getSimilarity("mavs", "Dallas Mavericks"));
-      System.out.println(nee.getSimilarity("sixers", "Dallas Mavericks"));
-      System.out.println(nee.getSimilarity("LeBron James", "James Harden"));
-      System.out.println(nee.getSimilarity("Los Angeles Lakers", "Lakers"));
-      System.out.println(nee.getSimilarity("Kobe", "Kobe Bryant"));
-      
-      System.out.println("\n\nTEST CASE FOR: LeBron James");
-      results = indexer.entityRecommend("LeBron James");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-
-      System.out.println("\n\nTEST CASE FOR: NBA");
-      results = indexer.entityRecommend("nba");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Damian Lillard");
-      results = indexer.entityRecommend("Damian Lillard");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers");
-      results = indexer.entityRecommend("Los Angeles Lakers");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: Houston Rockets");
-      results = indexer.entityRecommend("Houston Rockets");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-      
-      System.out.println("\n\nTEST CASE FOR: lebron james harden");
-      results = indexer.entityRecommend("lebron james harden");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
-
-      System.out.println("\n\nTEST CASE FOR: Lakers");
-      results = indexer.entityRecommend("Lakers");
-      for (Integer r: results) {
-        System.out.println(NEIndex.get(r));
-      }
+      /*
+       * //TEST CASE FOR NE EXPANSION NEExpansion nee = new
+       * NEExpansion(NECooccur, NEDict, NEIndex); showEntry("clippers");
+       * showEntry("lakers"); System.out.println(nee.getSimilarity("Clippers",
+       * "Lakers")); System.out.println(nee.getSimilarity("mavs",
+       * "Dallas Mavericks")); System.out.println(nee.getSimilarity("sixers",
+       * "Dallas Mavericks"));
+       * System.out.println(nee.getSimilarity("LeBron James", "James Harden"));
+       * System.out.println(nee.getSimilarity("Los Angeles Lakers", "Lakers"));
+       * System.out.println(nee.getSimilarity("Kobe", "Kobe Bryant"));
+       * 
+       * System.out.println("\n\nTEST CASE FOR: LeBron James"); results =
+       * indexer.entityRecommend("LeBron James"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: NBA"); results =
+       * indexer.entityRecommend("nba"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: Damian Lillard"); results =
+       * indexer.entityRecommend("Damian Lillard"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: Los Angeles Lakers"); results =
+       * indexer.entityRecommend("Los Angeles Lakers"); for (Integer r: results)
+       * { System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: Houston Rockets"); results =
+       * indexer.entityRecommend("Houston Rockets"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: james"); results =
+       * indexer.entityRecommend("james"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       * 
+       * System.out.println("\n\nTEST CASE FOR: Lakers"); results =
+       * indexer.entityRecommend("Lakers"); for (Integer r: results) {
+       * System.out.println(NEIndex.get(r)); }
+       */
     } catch (ClassCastException | ClassNotFoundException | IOException e) {
       e.printStackTrace();
     }
   }
-  */
+
 }

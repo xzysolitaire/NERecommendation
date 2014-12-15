@@ -6,11 +6,13 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.jayway.jsonpath.JsonPath;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,7 +30,7 @@ public class GetFreebaseNE {
   /*
    * return whether this name entity is one in the Freebase
    */
-  public boolean isFormalNE(String query) throws IOException, ParseException {
+  public boolean isFormalNE(String query) throws IOException, ParseException, InterruptedException {
     if (getNE(query) == null) {
       return false;
     } else {
@@ -39,11 +41,13 @@ public class GetFreebaseNE {
   /*
    * We only consider the most likely related name entity
    */
-  public String getNE(String query) throws IOException, ParseException {
+  public String getNE(String query) throws IOException, ParseException, InterruptedException {
+    Thread.sleep(150);
     List<String> r = new ArrayList<String>();
     GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
     url.put("query", query);
     url.put("limit", "1");
+    url.put("key", "AIzaSyAetx3nngxEG63CZqhfL8B1IHytxrG7w6E");
     HttpRequest request = requestFactory.buildGetRequest(url);
     HttpResponse httpResponse = request.execute();
     JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());
@@ -63,8 +67,8 @@ public class GetFreebaseNE {
   public static void main(String[] args) {
     try {
       GetFreebaseNE test = new GetFreebaseNE();
-      System.out.println(test.getNE("Celtics"));
-      System.out.println(test.isFormalNE("Lakers"));
+      System.out.println(test.getNE("channing frye"));
+      //System.out.println(test.isFormalNE("Lakers"));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
