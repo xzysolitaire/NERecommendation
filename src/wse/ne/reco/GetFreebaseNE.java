@@ -44,6 +44,7 @@ public class GetFreebaseNE {
     GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
     url.put("query", query);
     url.put("limit", "1");
+    url.put("key", "AIzaSyAetx3nngxEG63CZqhfL8B1IHytxrG7w6E");
     HttpRequest request = requestFactory.buildGetRequest(url);
     HttpResponse httpResponse = request.execute();
     JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());
@@ -63,8 +64,8 @@ public class GetFreebaseNE {
   public static void main(String[] args) {
     try {
       GetFreebaseNE test = new GetFreebaseNE();
-      System.out.println(test.getNE("Celtics"));
-      System.out.println(test.isFormalNE("Lakers"));
+      System.out.println(test.getNE("channing frye"));
+      //System.out.println(test.isFormalNE("Lakers"));
     } catch (Exception ex) {
       ex.printStackTrace();
     }

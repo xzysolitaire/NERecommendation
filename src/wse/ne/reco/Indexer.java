@@ -501,8 +501,8 @@ public class Indexer implements Serializable {
         System.out.println(NEIndex.get(r));
       }
       
-      System.out.println("\n\nTEST CASE FOR: lebron james harden");
-      results = indexer.entityRecommend("lebron james harden");
+      System.out.println("\n\nTEST CASE FOR: james");
+      results = indexer.entityRecommend("james");
       for (Integer r: results) {
         System.out.println(NEIndex.get(r));
       }

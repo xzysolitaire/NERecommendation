@@ -39,16 +39,20 @@ public class TopKMap {
     
     if (k >= map.keySet().size()) {
       for (Integer key: map.keySet()) {
-        pq.add(new keypair(key, map.get(key)));
+        if (map.get(key) > 3) { //we assume that less than 3 then it's spam
+          pq.add(new keypair(key, map.get(key)));
+        }
       }      
     } else {
       for (Integer key: map.keySet()) {
-        if (pq.size() < k) {
-          pq.add(new keypair(key, map.get(key)));
-        } else {
-          if (pq.peek().value < map.get(key)) {
-            pq.poll();
+        if (map.get(key) > 3) {
+          if (pq.size() < k) {
             pq.add(new keypair(key, map.get(key)));
+          } else {
+            if (pq.peek().value < map.get(key)) {
+              pq.poll();
+              pq.add(new keypair(key, map.get(key)));
+            }
           }
         }
       }
