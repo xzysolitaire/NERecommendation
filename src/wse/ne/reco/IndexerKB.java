@@ -30,6 +30,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 
 public class IndexerKB implements Serializable {
   
+  private static final long serialVersionUID = -8674208461025084740L;
   private static final String sourceDir = "data/stories";
   private int numResults;
   private boolean isChanged;  //record whether the current index has been modified
@@ -56,7 +57,7 @@ public class IndexerKB implements Serializable {
   private transient GetFreebaseNE KB = new GetFreebaseNE(); 
   
   public void constructIndex() throws IOException {
-    String indexFile = "index/final.idx";
+    String indexFile = "index/kb.final.idx";
     ObjectOutputStream writer = 
         new ObjectOutputStream(new FileOutputStream(indexFile));
     writer.writeObject(this);
@@ -75,7 +76,7 @@ public class IndexerKB implements Serializable {
     this.NEIndex = loaded.NEIndex;
     this.NECooccur = loaded.NECooccur;
     this.nameLink = loaded.nameLink;
-    this.KB = loaded.KB;
+    //this.KB = loaded.KB;
     reader.close();
     isChanged = false;
   }
@@ -106,7 +107,7 @@ public class IndexerKB implements Serializable {
   /*
    * Build the Co-occurrence index for the source texts
    */
-  private void buildIndex() throws IOException, ParseException, InterruptedException {
+  void buildIndex() throws IOException, ParseException, InterruptedException {
     List<File> files = new ArrayList<File>();
     
     //string set for each document 
@@ -374,6 +375,15 @@ public class IndexerKB implements Serializable {
     }
   }
   
+  public List<String> test(String query){
+    List<String> res = new ArrayList<String>();
+    List<Integer> temp = entityRecommend(query);
+    for(Integer t : temp){
+      res.add(NEIndex.get(t));
+    }
+    return res;
+  }
+  
   /*
    * Get the intersection of a list and a set
    */
@@ -420,14 +430,20 @@ public class IndexerKB implements Serializable {
     IndexerKB indexer = new IndexerKB(20);
     try {
       indexer.buildIndex();
+      System.out.println("before construct index");
       indexer.constructIndex();
+      //indexer.loadIndex();
     } catch ( Exception e) {
-     
+     e.printStackTrace();
     }
     
-
-    List<Integer> results = new ArrayList<Integer>();
     
+    List<String> results = new ArrayList<String>();
+    results = indexer.test("andrew bogut");
+    
+    for(String s : results){
+      System.out.println(s);
+    }
 //    for (int i = 0; i < NEIndex.size(); i++) {
 //      System.out.println(NEIndex.get(i));
 //    }

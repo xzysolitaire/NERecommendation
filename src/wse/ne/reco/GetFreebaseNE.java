@@ -42,12 +42,13 @@ public class GetFreebaseNE {
    * We only consider the most likely related name entity
    */
   public String getNE(String query) throws IOException, ParseException, InterruptedException {
-    Thread.sleep(150);
+    Thread.sleep(125);
     List<String> r = new ArrayList<String>();
     GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
     url.put("query", query);
     url.put("limit", "1");
    // url.put("key", "AIzaSyAetx3nngxEG63CZqhfL8B1IHytxrG7w6E");
+    url.put("key", "AIzaSyA05ZXD0B3US4Taxs73xJWq9Z5hK5c-_40");
     HttpRequest request = requestFactory.buildGetRequest(url);
     HttpResponse httpResponse = request.execute();
     JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());

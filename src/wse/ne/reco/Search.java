@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import org.json.simple.parser.ParseException;
+
 import com.sun.net.httpserver.HttpServer;
 
-public class SearchEngine {
-
+public class Search {
   /**
    * Prints {@code msg} and exits the program if {@code condition} is false.
    */
@@ -94,21 +95,21 @@ public class SearchEngine {
     Check(OPTIONS != null, "Must provide options!");
   }
 
-  private static void startIndexing() throws IOException, ClassCastException, ClassNotFoundException {
-    Indexer indexer = new Indexer(OPTIONS);
+  private static void startIndexing() throws IOException, ClassCastException, ClassNotFoundException, ParseException, InterruptedException {
+    IndexerKB indexer = new IndexerKB();
     indexer.buildIndex();
     indexer.constructIndex();
   }
 
   private static void startServing() throws IOException, ClassNotFoundException {
     // Create the handler and its associated indexer.
-    Indexer indexer = new Indexer(OPTIONS);  
+    IndexerKB indexer = new IndexerKB();  
     indexer.loadIndex();
-    QueryHandler handler = new QueryHandler(indexer);
+    QueryHandlerKB handler = new QueryHandlerKB(indexer);
     MainpageHandler indexHander = new MainpageHandler();
     MWebHandler webFileHandler = new MWebHandler();
     // Establish the serving environment
-    InetSocketAddress addr = new InetSocketAddress(SearchEngine.PORT);
+    InetSocketAddress addr = new InetSocketAddress(Search.PORT);
     HttpServer server = HttpServer.create(addr, -1);
 
     server.createContext("/search", handler);
@@ -117,13 +118,13 @@ public class SearchEngine {
     server.setExecutor(Executors.newCachedThreadPool());
     server.start();
     System.out.println("Listening on port: "
-        + Integer.toString(SearchEngine.PORT));
+        + Integer.toString(Search.PORT));
   }
 
   public static void main(String[] args) {
     try {
-      SearchEngine.parseCommandLine(args);
-      switch (SearchEngine.MODE) {
+      Search.parseCommandLine(args);
+      switch (Search.MODE) {
       case INDEX:
         startIndexing();
         break;

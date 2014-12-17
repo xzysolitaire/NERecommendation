@@ -31,7 +31,7 @@ import edu.stanford.nlp.ling.CoreLabel;
  */
 
 public class Indexer implements Serializable {
-  private Options OPTIONS = null;
+  private transient Options OPTIONS = null;
   private static final long serialVersionUID = -8440505010398627617L;
   private static final String sourceDir = "data/stories_whole";
   private int numResults;
@@ -105,7 +105,7 @@ public class Indexer implements Serializable {
   /*
    * Build the Co-occurrence index for the source texts
    */
-  private void buildIndex() throws IOException {
+  public void buildIndex() throws IOException {
     List<File> files = new ArrayList<File>();
     try {
       String source = this.OPTIONS._corpusPrefix;
@@ -304,55 +304,61 @@ public class Indexer implements Serializable {
 
     if (NEDict.containsKey(query)) {
       int queryid = NEDict.get(query);
-      return TopKMap.sortMap(numResults, NECooccur.get(queryid));
-    } else {
-      if (query.split(" ").length > 1) { // provide the intersection of the
-                                         // lists
-        int j = 0;
-        List<Integer> r = new ArrayList<Integer>();
-        String[] temp = query.split(" ");
-        for (int i = 0; i < temp.length; i++) {
-          if (nameLink.containsKey(temp[i])) { // get the intersection of all
-                                               // the entities name links
-            for (Integer term : nameLink.get(temp[i])) {
-              r.add(term);
-            }
-            j = i;
-            break;
-          }
-        }
-
-        for (int i = j + 1; i < temp.length; i++) {
-          if (nameLink.containsKey(temp[i])) {
-            r = getIntersection(r, nameLink.get(temp[i]));
-          }
-        }
-
-        for (int i = 0; i < temp.length; i++) {
-          if (NECooccur.containsKey(temp[i])) {
-            r.add(NEDict.get(temp[i]));
-          }
-        }
-
+      //List<Integer> r = TopKMap.sortMap(numResults, NECooccur.get(queryid));
+      List<Integer> r = new ArrayList<Integer>(NECooccur.get(queryid).keySet());
+      if (r.size() > 0) {
         return r;
-      } else {
-        if (nameLink.containsKey(query)) { // if there exists a name link
-          if (nameLink.get(query).size() == 1) { // if there only exists one
-                                                 // link
-            Integer link = 0;
-            for (Integer term : nameLink.get(query)) {
-              link = term;
-            }
-            return TopKMap.sortMap(numResults, NECooccur.get(link));
-          } else {
-            for (Integer ne : nameLink.get(query)) {
-              recoResults.add(ne);
-            }
-            return recoResults;
+      }
+    }
+    
+    if (query.split(" ").length > 1) { // provide the intersection of the
+                                       // lists
+      int j = 0;
+      List<Integer> r = new ArrayList<Integer>();
+      String[] temp = query.split(" ");
+      for (int i = 0; i < temp.length; i++) {
+        if (nameLink.containsKey(temp[i])) { // get the intersection of all
+                                             // the entities name links
+          for (Integer term : nameLink.get(temp[i])) {
+            r.add(term);
           }
-        } else { // if not, return an empty list
+          j = i;
+          break;
+        }
+      }
+
+      for (int i = j + 1; i < temp.length; i++) {
+        if (nameLink.containsKey(temp[i])) {
+          r = getIntersection(r, nameLink.get(temp[i]));
+        }
+      }
+
+      for (int i = 0; i < temp.length; i++) {
+        if (NECooccur.containsKey(temp[i])) {
+          r.add(NEDict.get(temp[i]));
+        }
+      }
+
+      return r;
+    } else {
+      if (nameLink.containsKey(query)) { // if there exists a name link
+        if (nameLink.get(query).size() == 1) { // if there only exists one
+                                               // link
+          Integer link = 0;
+          for (Integer term : nameLink.get(query)) {
+            link = term;
+          }
+          return new ArrayList<Integer>(NECooccur.get(link).keySet());
+          //return TopKMap.sortMap(numResults, NECooccur.get(link));
+        } else {
+          for (Integer ne : nameLink.get(query)) {
+            recoResults.add(ne);
+          }
           return recoResults;
         }
+      } else { // if not, return an empty list
+        System.out.println("There are no results.");
+        return recoResults;
       }
     }
   }
@@ -439,7 +445,7 @@ public class Indexer implements Serializable {
   }
 
   public static void main(String[] args) {
-
+   
   }
 
 }

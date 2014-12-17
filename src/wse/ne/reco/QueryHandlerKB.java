@@ -8,11 +8,14 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Vector;
 
+import wse.ne.reco.QueryHandler.CgiArguments;
+import wse.ne.reco.QueryHandler.CgiArguments.OutputFormat;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-class QueryHandler implements HttpHandler {
+public class QueryHandlerKB implements HttpHandler {
 
   /**
    * CGI arguments provided by the user through the URL. This will determine
@@ -60,9 +63,9 @@ class QueryHandler implements HttpHandler {
     }
   }
 
-  private Indexer indexer;
+  private IndexerKB indexer;
 
-  public QueryHandler(Indexer indexer) {
+  public QueryHandlerKB(IndexerKB indexer) {
     this.indexer = indexer;
   }
 
@@ -163,7 +166,7 @@ class QueryHandler implements HttpHandler {
 
         StringBuffer response = new StringBuffer();
         List<Integer> results = indexer.entityRecommend(cgiArgs._query);
-        List<String> newResults = indexer.testEntityRecommend(cgiArgs._query);
+        List<String> newResults = indexer.test(cgiArgs._query);
         for (Integer r : results) {
           System.out.println(r);
         }

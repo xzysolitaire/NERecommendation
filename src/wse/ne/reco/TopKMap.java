@@ -20,7 +20,7 @@ public class TopKMap {
       value = v;
     }
   }
-  
+   
   /*
    * Provide the top k results of the map
    */
@@ -39,13 +39,13 @@ public class TopKMap {
     
     if (k >= map.keySet().size()) {
       for (Integer key: map.keySet()) {
-        if (map.get(key) > 3) { //we assume that less than 3 then it's spam
+        if (map.get(key) > 0) { //we assume that less than 3 then it's spam
           pq.add(new keypair(key, map.get(key)));
         }
       }      
     } else {
       for (Integer key: map.keySet()) {
-        if (map.get(key) > 3) {
+        if (map.get(key) > 0) {
           if (pq.size() < k) {
             pq.add(new keypair(key, map.get(key)));
           } else {
