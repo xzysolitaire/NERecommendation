@@ -48,7 +48,7 @@ public class GetFreebaseNE {
     url.put("query", query);
     url.put("limit", "1");
    // url.put("key", "AIzaSyAetx3nngxEG63CZqhfL8B1IHytxrG7w6E");
-    url.put("key", "AIzaSyA05ZXD0B3US4Taxs73xJWq9Z5hK5c-_40");
+    url.put("key", "AIzaSyCNOB1KEqAP2H3V5hjM4Pox2yfL2P3CDrY");
     HttpRequest request = requestFactory.buildGetRequest(url);
     HttpResponse httpResponse = request.execute();
     JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());
