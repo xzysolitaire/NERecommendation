@@ -4,7 +4,7 @@ Name entity recommender system based on the co-occurrence relevance of name enti
 
 Tools we use
 ================
-Freebase API: https://developers.google.com/freebase/
+Freebase API: https://developers.google.com/freebase/ 
 Stanford Name Entity Recognizer: http://nlp.stanford.edu/software/CRF-NER.shtml
 
 Ideas and Implementations
